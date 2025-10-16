@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Виталий — AI Developer</title>
+<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" />
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+:root {
+  --bg: #0a0a0f;
+  --text: #e0e0e0;
+  --accent: #7b5cf9;
+  --card-bg: #141421;
+  --border: #222;
+  --glow: 0 0 15px rgba(123,92,249,0.4);
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+header {
+  padding: 60px 20px 30px;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 2.4em;
+  background: linear-gradient(90deg, #9b79ff, #00d4ff, #ff79c6, #00ffd4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+  animation: gradientMove 6s ease infinite;
+}
+
+header p {
+  max-width: 700px;
+  margin: 0 auto;
+  color: #bbb;
+  font-size: 1.1em;
+}
+
+/* Анимация градиента */
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.about-me {
+  background: linear-gradient(135deg, rgba(123,92,249,0.15), rgba(0,212,255,0.15));
+  border: 1px solid rgba(123,92,249,0.4);
+  border-radius: 12px;
+  padding: 25px;
+  margin-top: 30px;
+  max-width: 750px;
+  margin-left: auto;
+  margin-right: auto;
+  color: #e0e0e0;
+  box-shadow: 0 0 20px rgba(123,92,249,0.2);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease-out;
+}
+
+section {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 0 20px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease-out;
+}
+
+h2 {
+  border-left: 4px solid var(--accent);
+  padding-left: 12px;
+  margin-bottom: 25px;
+  font-size: 1.6em;
+  font-weight: 600;
+  background: linear-gradient(90deg, #9b79ff, #00d4ff, #ff79c6, #00ffd4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientMove 6s ease infinite;
+}
+
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+li::before {
+  content: "• ";
+  color: var(--accent);
+}
+
+.projects {
+  display: flex;
+  flex-direction: column;
+  gap: 35px;
+}
+
+.project {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 25px;
+  transition: all 0.4s ease, transform 0.4s ease;
+  box-shadow: 0 0 0 rgba(0,0,0,0);
+}
+
+.project:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--glow);
+  border-color: var(--accent);
+}
+
+.project h3 {
+  color: var(--accent);
+  margin-top: 0;
+}
+
+a {
+  color: #00d4ff;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  background: linear-gradient(90deg, #00d4ff, #ff79c6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientMove 6s ease infinite;
+}
+
+a:hover {
+  text-shadow: 0 0 8px rgba(123,92,249,0.7);
+}
+
+footer {
+  text-align: center;
+  padding: 40px 10px;
+  color: #666;
+  border-top: 1px solid #111;
+  font-size: 0.9em;
+  background: #0d0d14;
+}
+
+.show {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Привет! Я Виталий — AI Developer</h1>
+  <p>Создаю полноценные приложения и ботов с помощью <strong>Cursor</strong>, <strong>Python</strong> и <strong>JavaScript</strong>.<br>
+  Использую искусственный интеллект как партнёра по разработке, чтобы собирать продукты быстрее и эффективнее.</p>
+
+  <div class="about-me">
+    <p>Я — AI Developer нового поколения.<br>
+    Разрабатываю приложения, где человек и искусственный интеллект работают как команда.<br>
+    Использую современные фреймворки, чтобы превращать идеи в готовые продукты — от чат-ботов до полноценных web-систем с backend и базами данных.<br>
+    В моих проектах AI помогает не просто писать код, а ускорять архитектурные решения, тестирование и интеграции.</p>
+  </div>
+</header>
+
+<section class="skills">
+  <h2>💡 Навыки</h2>
+  <ul>
+    <li>Разработка web-приложений (frontend + backend + базы данных)</li>
+    <li>Работа с AI IDE (Cursor, Replit, Copilot)</li>
+    <li>Создание Telegram-ботов (Python, Salebot, Suvvy)</li>
+    <li>Интеграции с API и AI-сервисами (OpenAI, Qwen, Yandex-cloud, CRM-system API)</li>
+    <li>Использование Django, FastAPI, Bootstrap, React, Celery, Redis, WebSocket</li>
+  </ul>
+</section>
+
+<section class="projects">
+  <h2>💼 Проекты</h2>
+
+  <div class="project">
+    <h3>TaskFlow — система управления задачами с Telegram-ботом</h3>
+    <p>TaskFlow — современная система управления задачами, объединяющая веб-интерфейс и Telegram-бот. 
+    Обеспечивает полную синхронизацию данных и автоматические уведомления.</p>
+    <p><strong>Технологии:</strong> Django 5.2, DRF, Pure JS, Bootstrap 5, Django Channels (WebSocket), Celery, Redis, SQLite, Aiogram, Daphne.</p>
+    <p>🔗 <a href="https://github.com/ignitione1/TaskFlow" target="_blank">Посмотреть на GitHub</a></p>
+  </div>
+
+  <div class="project">
+    <h3>Pregnancy Test App — Android & Web интеграция</h3>
+    <p>Развлекательное веб-приложение, встроенное в Android через WebView. 
+    Содержит пошаговый процесс с анимациями и интерактивными элементами. Не является реальным медицинским тестом.</p>
+    <p><strong>Технологии:</strong> Kotlin, Jetpack Compose, Android Studio, HTML/CSS/JS (WebView).</p>
+    <p>🔗 <a href="https://github.com/ignitione1/Pregnancy_Test" target="_blank">Посмотреть на GitHub</a></p>
+  </div>
+
+  <div class="project">
+    <h3>Plazma Siberia — интеллектуальный Telegram-бот для клиники</h3>
+    <p>AI-бот для клиники косметологии, который консультирует клиентов, отвечает на вопросы и записывает на приём. 
+    Основан на платформе Suvvy.ai с интеграцией Google Calendar и Telegram Bot API.</p>
+    <p><strong>Технологии:</strong> Suvvy.ai, Qwen (Alibaba Cloud), Telegram Bot API, Google Calendar API, Webhooks.</p>
+    <p>🔗 <a href="https://github.com/ignitione1/ai_assistant_Plazma" target="_blank">Посмотреть на GitHub</a></p>
+  </div>
+</section>
+
+<section class="approach">
+  <h2>🧠 Мой подход</h2>
+  <p>Я использую искусственный интеллект как полноценного партнёра в процессе разработки. 
+  Формулирую точные промты, проектирую архитектуру и проверяю код, 
+  что позволяет создавать сложные продукты в короткие сроки без потери качества.</p>
+</section>
+
+<section class="contact">
+  <h2>📫 Контакты</h2>
+  <p>💬 Telegram: <a href="#">@vitaly_revyakin</a><br>
+     💻 GitHub: <a href="https://github.com/ignitione1" target="_blank">github.com/ignitione1</a><br>
+</section>
+
+<footer>
+  <p>© 2025 Виталий Ревякин. <span class="footer-slogan">“AI не заменяет, AI ускоряет”</span></p>
+</footer>
+
+<style>
+footer {
+  text-align: center;
+  padding: 40px 10px;
+  color: #666;
+  border-top: 1px solid #111;
+  font-size: 0.9em;
+  background: #0d0d14;
+}
+
+.footer-slogan {
+  background: linear-gradient(90deg, #9b79ff, #00d4ff, #ff79c6, #00ffd4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientMove 6s ease infinite;
+}
+</style>
+
+<script>
+  // Анимация при скролле
+  const faders = document.querySelectorAll('.about-me, section');
+  const appearOptions = { threshold: 0.1 };
+  const appearOnScroll = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('show');
+      observer.unobserve(entry.target);
+    });
+  }, appearOptions);
+
+  faders.forEach(fader => {
+    appearOnScroll.observe(fader);
+  });
+</script>
+
+</body>
+</html>
