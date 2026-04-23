@@ -281,29 +281,29 @@ export function ShaderBackground() {
 
       // Inject from pointer if moved
       if (pointer.moved) {
-        const orangeTint: [number, number, number] = [0.9, 0.38, -0.25];
-        const blueTint:   [number, number, number] = [-0.3, -0.12, 1.0];
+        const orangeTint: [number, number, number] = [0.55, 0.22, -0.15];
+        const blueTint:   [number, number, number] = [-0.18, -0.05, 0.65];
         const mixT = currentBlend;
         const cr = blueTint[0] * (1 - mixT) + orangeTint[0] * mixT;
         const cg = blueTint[1] * (1 - mixT) + orangeTint[1] * mixT;
         const cb = blueTint[2] * (1 - mixT) + orangeTint[2] * mixT;
 
         const speed = Math.hypot(pointer.dx, pointer.dy);
-        // Bigger, juicier splat right at the cursor — radius scales with speed too
-        const intensity = Math.min(2.4, 0.7 + speed * 45);
-        const dyeRadius = 0.0035 + Math.min(0.004, speed * 0.5);
+        // Soft, fat brush — large radius, gentle intensity → smooth ribbon trail
+        const intensity = Math.min(0.9, 0.35 + speed * 8);
+        const dyeRadius = 0.012; // big & soft
         splat(dye, pointer.x, pointer.y, cr * intensity, cg * intensity, cb * intensity, dyeRadius);
 
-        // Push the water ahead of the cursor — splat velocity slightly in front of motion
-        const vScale = 2200;
-        const ahead = 0.6; // place the velocity splat a bit ahead of the cursor
+        // Velocity push — moderate, placed slightly ahead of cursor for "pushing water"
+        const vScale = 900;
+        const ahead = 0.4;
         const aheadX = pointer.x + pointer.dx * ahead;
         const aheadY = pointer.y + pointer.dy * ahead;
         splat(
           velocity,
           aheadX, aheadY,
           pointer.dx * vScale, pointer.dy * vScale, 0,
-          0.0025,
+          0.008,
         );
 
         pointer.moved = false;
@@ -312,11 +312,11 @@ export function ShaderBackground() {
       }
 
       // Advect velocity by itself (self-advection) — gives the "pushing water ahead" feel
-      advect(velocity, dt * 60, 0.995);
+      advect(velocity, dt * 60, 0.992);
       // Slight global damping
-      damp(0.995);
-      // Advect dye by velocity
-      advect(dye, dt * 60, 0.992);
+      damp(0.992);
+      // Advect dye by velocity — keep it long-lived for ribbon trails
+      advect(dye, dt * 60, 0.998);
 
       // Render to screen
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
