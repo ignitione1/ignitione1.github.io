@@ -22,7 +22,6 @@ export default function ShaderBackgroundInner() {
         intensity={0.9}
         radius={1.8}
         momentum={25}
-        maskType="alpha"
         opacity={0.97}
       />
     </Shader>
