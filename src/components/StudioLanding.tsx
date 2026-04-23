@@ -101,7 +101,6 @@ export function StudioLanding() {
       {/* Animated WebGL shader background */}
       <div className="fixed inset-0 z-0">
         <ShaderBackground />
-        <div className="absolute inset-0 bg-black/30" />
       </div>
 
       {/* Header */}
