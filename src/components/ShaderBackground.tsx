@@ -1,9 +1,9 @@
-import { MeshGradient } from "@paper-design/shaders-react";
+import { MeshGradient, Swirl } from "@paper-design/shaders-react";
 import { useEffect, useState } from "react";
 
 /**
- * Smooth liquid mesh gradient background using @paper-design/shaders-react.
- * Reacts to cursor movement by subtly shifting colors and distortion.
+ * Smooth liquid background — MeshGradient base + Swirl overlay for fluid motion.
+ * Uses @paper-design/shaders-react (same lib as the reference site).
  */
 export function ShaderBackground() {
   const [size, setSize] = useState({ w: 0, h: 0 });
@@ -18,34 +18,38 @@ export function ShaderBackground() {
   if (size.w === 0) return null;
 
   return (
-    <div className="absolute inset-0 h-full w-full">
+    <div className="absolute inset-0 h-full w-full overflow-hidden">
       <MeshGradient
         width={size.w}
         height={size.h}
         colors={["#d97939", "#e8a04a", "#3b4ba8", "#1a1f3a"]}
-        distortion={0.85}
-        swirl={0.35}
-        speed={0.45}
-        grainMixer={0.02}
-        grainOverlay={0.04}
+        distortion={0.9}
+        swirl={0.4}
+        speed={0.4}
+        grainMixer={0}
+        grainOverlay={0.03}
         style={{ width: "100%", height: "100%" }}
       />
-      <MeshGradient
+      <Swirl
         width={size.w}
         height={size.h}
-        colors={["#00000000", "#4a5fcf", "#00000000", "#e88c3a"]}
-        distortion={1}
-        swirl={0.6}
-        speed={0.7}
-        grainMixer={0}
-        grainOverlay={0}
+        colors={["#e88c3a", "#4a5fcf", "#1a1f3a"]}
+        colorBack="#00000000"
+        bandCount={2}
+        twist={0.6}
+        center={0.5}
+        proportion={0.5}
+        softness={1}
+        noise={0.4}
+        noiseFrequency={0.3}
+        speed={0.25}
         style={{
           position: "absolute",
           inset: 0,
           width: "100%",
           height: "100%",
-          mixBlendMode: "screen",
-          opacity: 0.55,
+          mixBlendMode: "soft-light",
+          opacity: 0.7,
         }}
       />
     </div>
