@@ -98,10 +98,10 @@ export function StudioLanding() {
       {/* Noise */}
       <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.08] noise-overlay" />
 
-      {/* Animated shader-like background */}
+      {/* Animated WebGL shader background */}
       <div className="fixed inset-0 z-0">
-        <div className="shader-bg h-full w-full" />
-        <div className="absolute inset-0 bg-black/20" />
+        <ShaderBackground />
+        <div className="absolute inset-0 bg-black/30" />
       </div>
 
       {/* Header */}
