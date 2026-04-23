@@ -289,21 +289,21 @@ export function ShaderBackground() {
         const cb = blueTint[2] * (1 - mixT) + orangeTint[2] * mixT;
 
         const speed = Math.hypot(pointer.dx, pointer.dy);
-        // Soft, fat brush — large radius, gentle intensity → smooth ribbon trail
-        const intensity = Math.min(0.9, 0.35 + speed * 8);
-        const dyeRadius = 0.012; // big & soft
+        // Smaller, more delicate brush
+        const intensity = Math.min(0.55, 0.2 + speed * 5);
+        const dyeRadius = 0.0035; // tighter ribbon
         splat(dye, pointer.x, pointer.y, cr * intensity, cg * intensity, cb * intensity, dyeRadius);
 
-        // Velocity push — moderate, placed slightly ahead of cursor for "pushing water"
-        const vScale = 900;
-        const ahead = 0.4;
+        // Velocity push — gentler, smaller area
+        const vScale = 500;
+        const ahead = 0.3;
         const aheadX = pointer.x + pointer.dx * ahead;
         const aheadY = pointer.y + pointer.dy * ahead;
         splat(
           velocity,
           aheadX, aheadY,
           pointer.dx * vScale, pointer.dy * vScale, 0,
-          0.008,
+          0.003,
         );
 
         pointer.moved = false;
