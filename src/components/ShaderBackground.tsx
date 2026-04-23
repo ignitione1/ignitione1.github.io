@@ -12,12 +12,6 @@ export function ShaderBackground() {
         speed={0.8}
         detail={0.8}
         blend={50}
-        coarseX={40}
-        coarseY={40}
-        mediumX={40}
-        mediumY={40}
-        fineX={40}
-        fineY={40}
       />
       <ChromaFlow
         baseColor="#0066ff"
