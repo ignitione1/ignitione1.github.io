@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Mail, MapPin } from "lucide-react";
 import { CustomCursor } from "./CustomCursor";
+import { ShaderBackground } from "./ShaderBackground";
 
 const navItems = ["Главная", "Работы", "Услуги", "О нас", "Контакты"];
 
