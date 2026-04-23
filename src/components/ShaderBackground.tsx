@@ -1,78 +1,134 @@
 import { useEffect, useRef } from "react";
 
+/**
+ * Fluid simulation background.
+ * - Two color fields (orange / blue) advected by a velocity field.
+ * - Cursor injects velocity (push) and dye of the OPPOSITE color of the current background.
+ * - Background base color slowly oscillates between orange and blue over time.
+ */
+
 const VERT = `
-attribute vec2 a_position;
-void main() { gl_Position = vec4(a_position, 0.0, 1.0); }
+attribute vec2 a_pos;
+varying vec2 v_uv;
+void main() {
+  v_uv = a_pos * 0.5 + 0.5;
+  gl_Position = vec4(a_pos, 0.0, 1.0);
+}
 `;
 
-const FRAG = `
+// Advect a texture by the velocity field
+const ADVECT_FRAG = `
 precision highp float;
-uniform vec2 u_resolution;
-uniform float u_time;
-
-// Smooth noise based on hashing
-vec3 hash3(vec2 p) {
-  vec3 q = vec3(dot(p, vec2(127.1, 311.7)),
-                dot(p, vec2(269.5, 183.3)),
-                dot(p, vec2(419.2, 371.9)));
-  return fract(sin(q) * 43758.5453);
-}
-
-float noise(vec2 p) {
-  vec2 i = floor(p);
-  vec2 f = fract(p);
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float a = hash3(i).x;
-  float b = hash3(i + vec2(1.0, 0.0)).x;
-  float c = hash3(i + vec2(0.0, 1.0)).x;
-  float d = hash3(i + vec2(1.0, 1.0)).x;
-  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
-}
-
-float fbm(vec2 p) {
-  float v = 0.0;
-  float a = 0.5;
-  for (int i = 0; i < 5; i++) {
-    v += a * noise(p);
-    p *= 2.0;
-    a *= 0.5;
-  }
-  return v;
-}
-
+varying vec2 v_uv;
+uniform sampler2D u_velocity;
+uniform sampler2D u_source;
+uniform vec2 u_texel;
+uniform float u_dt;
+uniform float u_dissipation;
 void main() {
-  vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-  vec2 p = uv * 2.0 - 1.0;
-  p.x *= u_resolution.x / u_resolution.y;
+  vec2 vel = texture2D(u_velocity, v_uv).xy;
+  vec2 coord = v_uv - u_dt * vel * u_texel;
+  vec4 c = texture2D(u_source, coord);
+  gl_FragColor = c * u_dissipation;
+}
+`;
 
-  float t = u_time * 0.08;
+// Inject splat (gaussian) into a target (additive)
+const SPLAT_FRAG = `
+precision highp float;
+varying vec2 v_uv;
+uniform sampler2D u_target;
+uniform vec2 u_point;     // 0..1
+uniform vec3 u_color;     // for dye splat: rgb. For velocity splat: vec3(vx, vy, 0)
+uniform float u_radius;
+uniform float u_aspect;
+void main() {
+  vec2 p = v_uv - u_point;
+  p.x *= u_aspect;
+  float g = exp(-dot(p, p) / u_radius);
+  vec3 base = texture2D(u_target, v_uv).xyz;
+  gl_FragColor = vec4(base + g * u_color, 1.0);
+}
+`;
 
-  // Layered flowing noise
-  vec2 q = vec2(fbm(p + vec2(t, -t)), fbm(p + vec2(-t, t) + 3.0));
-  vec2 r = vec2(fbm(p + q + vec2(1.7, 9.2) + t * 0.5),
-                fbm(p + q + vec2(8.3, 2.8) - t * 0.5));
-  float f = fbm(p + r);
+// Damp velocity slightly each frame
+const DAMP_FRAG = `
+precision highp float;
+varying vec2 v_uv;
+uniform sampler2D u_velocity;
+uniform float u_damp;
+void main() {
+  vec2 v = texture2D(u_velocity, v_uv).xy;
+  gl_FragColor = vec4(v * u_damp, 0.0, 1.0);
+}
+`;
 
-  // Color palette — deep blues / purples / teals
-  vec3 c1 = vec3(0.05, 0.07, 0.18);   // deep navy
-  vec3 c2 = vec3(0.20, 0.10, 0.35);   // violet
-  vec3 c3 = vec3(0.10, 0.30, 0.45);   // teal
-  vec3 c4 = vec3(0.35, 0.15, 0.40);   // magenta-violet
+// Final display: combine dye with oscillating background
+const DISPLAY_FRAG = `
+precision highp float;
+varying vec2 v_uv;
+uniform sampler2D u_dye;
+uniform float u_phase; // 0..1, oscillates
+void main() {
+  // base color oscillates orange <-> blue
+  vec3 orange = vec3(0.78, 0.46, 0.20);
+  vec3 blue   = vec3(0.20, 0.30, 0.78);
+  float t = 0.5 + 0.5 * sin(u_phase);
+  vec3 base = mix(orange, blue, t);
 
-  vec3 col = mix(c1, c2, clamp(f * 1.4, 0.0, 1.0));
-  col = mix(col, c3, clamp(length(q) * 0.7, 0.0, 1.0));
-  col = mix(col, c4, clamp(r.x * 0.6, 0.0, 1.0));
-
-  // Vignette
-  float vig = smoothstep(1.4, 0.2, length(p) * 0.7);
-  col *= 0.4 + 0.6 * vig;
-
-  // Darken overall to keep text readable
-  col *= 0.85;
-
+  vec3 dye = texture2D(u_dye, v_uv).rgb;
+  // dye is injected as opposite-color tint; just additive blend then soft tone
+  vec3 col = base + dye;
+  // gentle vignette
+  vec2 p = v_uv - 0.5;
+  float vig = smoothstep(0.9, 0.2, length(p));
+  col *= 0.55 + 0.55 * vig;
   gl_FragColor = vec4(col, 1.0);
 }
 `;
+
+function compile(gl: WebGLRenderingContext, type: number, src: string) {
+  const s = gl.createShader(type)!;
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+    console.error(gl.getShaderInfoLog(s));
+  }
+  return s;
+}
+function program(gl: WebGLRenderingContext, vsSrc: string, fsSrc: string) {
+  const p = gl.createProgram()!;
+  gl.attachShader(p, compile(gl, gl.VERTEX_SHADER, vsSrc));
+  gl.attachShader(p, compile(gl, gl.FRAGMENT_SHADER, fsSrc));
+  gl.linkProgram(p);
+  return p;
+}
+
+function makeFBO(gl: WebGLRenderingContext, w: number, h: number, type: number) {
+  const tex = gl.createTexture()!;
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, type, null);
+  const fbo = gl.createFramebuffer()!;
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  gl.viewport(0, 0, w, h);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  return { tex, fbo, w, h };
+}
+type FBO = ReturnType<typeof makeFBO>;
+function makeDouble(gl: WebGLRenderingContext, w: number, h: number, type: number) {
+  let a = makeFBO(gl, w, h, type);
+  let b = makeFBO(gl, w, h, type);
+  return {
+    read: () => a,
+    write: () => b,
+    swap: () => { const t = a; a = b; b = t; },
+  };
+}
 
 export function ShaderBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -80,63 +136,205 @@ export function ShaderBackground() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    const gl = canvas.getContext("webgl", { alpha: false, premultipliedAlpha: false }) as WebGLRenderingContext | null;
     if (!gl) return;
-    const glc = gl as WebGLRenderingContext;
 
-    const compile = (type: number, src: string) => {
-      const s = glc.createShader(type)!;
-      glc.shaderSource(s, src);
-      glc.compileShader(s);
-      return s;
+    // Float textures preferred; fall back to UNSIGNED_BYTE
+    const halfFloatExt = gl.getExtension("OES_texture_half_float");
+    gl.getExtension("OES_texture_half_float_linear");
+    gl.getExtension("OES_texture_float");
+    gl.getExtension("OES_texture_float_linear");
+    const HALF_FLOAT = halfFloatExt ? halfFloatExt.HALF_FLOAT_OES : gl.UNSIGNED_BYTE;
+
+    // Programs
+    const advectProg = program(gl, VERT, ADVECT_FRAG);
+    const splatProg = program(gl, VERT, SPLAT_FRAG);
+    const dampProg = program(gl, VERT, DAMP_FRAG);
+    const displayProg = program(gl, VERT, DISPLAY_FRAG);
+
+    // Quad
+    const quad = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+    const bindQuad = (prog: WebGLProgram) => {
+      const loc = gl.getAttribLocation(prog, "a_pos");
+      gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     };
-    const vs = compile(glc.VERTEX_SHADER, VERT);
-    const fs = compile(glc.FRAGMENT_SHADER, FRAG);
-    const prog = glc.createProgram()!;
-    glc.attachShader(prog, vs);
-    glc.attachShader(prog, fs);
-    glc.linkProgram(prog);
-    glc.useProgram(prog);
 
-    const buf = glc.createBuffer();
-    glc.bindBuffer(glc.ARRAY_BUFFER, buf);
-    glc.bufferData(
-      glc.ARRAY_BUFFER,
-      new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
-      glc.STATIC_DRAW
-    );
-    const loc = glc.getAttribLocation(prog, "a_position");
-    glc.enableVertexAttribArray(loc);
-    glc.vertexAttribPointer(loc, 2, glc.FLOAT, false, 0, 0);
+    // Sim resolution (low res for speed) and display resolution
+    const SIM_RES = 192;
+    let dW = 0, dH = 0, sW = 0, sH = 0;
+    let velocity: ReturnType<typeof makeDouble>;
+    let dye: ReturnType<typeof makeDouble>;
 
-    const uRes = glc.getUniformLocation(prog, "u_resolution");
-    const uTime = glc.getUniformLocation(prog, "u_time");
-
-    const resize = () => {
+    const setupFBOs = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
+      dW = Math.floor(window.innerWidth * dpr);
+      dH = Math.floor(window.innerHeight * dpr);
+      canvas.width = dW;
+      canvas.height = dH;
       canvas.style.width = window.innerWidth + "px";
       canvas.style.height = window.innerHeight + "px";
-      glc.viewport(0, 0, canvas.width, canvas.height);
+
+      const ar = dW / dH;
+      sW = SIM_RES;
+      sH = Math.round(SIM_RES / ar);
+      velocity = makeDouble(gl, sW, sH, HALF_FLOAT);
+      dye = makeDouble(gl, sW, sH, HALF_FLOAT);
     };
-    resize();
-    window.addEventListener("resize", resize);
+    setupFBOs();
+    const onResize = () => setupFBOs();
+    window.addEventListener("resize", onResize);
+
+    // Pointer
+    const pointer = {
+      x: 0.5, y: 0.5, px: 0.5, py: 0.5, dx: 0, dy: 0, moved: false, down: true,
+    };
+    const onMove = (e: PointerEvent) => {
+      const x = e.clientX / window.innerWidth;
+      const y = 1.0 - e.clientY / window.innerHeight;
+      pointer.dx = x - pointer.x;
+      pointer.dy = y - pointer.y;
+      pointer.x = x;
+      pointer.y = y;
+      pointer.moved = true;
+    };
+    window.addEventListener("pointermove", onMove);
+
+    // Helpers
+    const blit = (target: FBO | null) => {
+      if (target) {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, target.fbo);
+        gl.viewport(0, 0, target.w, target.h);
+      } else {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.viewport(0, 0, dW, dH);
+      }
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+    };
+
+    const splat = (
+      target: ReturnType<typeof makeDouble>,
+      x: number, y: number,
+      cr: number, cg: number, cb: number,
+      radius: number,
+    ) => {
+      gl.useProgram(splatProg);
+      bindQuad(splatProg);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, target.read().tex);
+      gl.uniform1i(gl.getUniformLocation(splatProg, "u_target"), 0);
+      gl.uniform2f(gl.getUniformLocation(splatProg, "u_point"), x, y);
+      gl.uniform3f(gl.getUniformLocation(splatProg, "u_color"), cr, cg, cb);
+      gl.uniform1f(gl.getUniformLocation(splatProg, "u_radius"), radius);
+      gl.uniform1f(gl.getUniformLocation(splatProg, "u_aspect"), sW / sH);
+      blit(target.write());
+      target.swap();
+    };
+
+    const advect = (
+      target: ReturnType<typeof makeDouble>,
+      dt: number, dissipation: number,
+    ) => {
+      gl.useProgram(advectProg);
+      bindQuad(advectProg);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, velocity.read().tex);
+      gl.uniform1i(gl.getUniformLocation(advectProg, "u_velocity"), 0);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, target.read().tex);
+      gl.uniform1i(gl.getUniformLocation(advectProg, "u_source"), 1);
+      gl.uniform2f(gl.getUniformLocation(advectProg, "u_texel"), 1 / sW, 1 / sH);
+      gl.uniform1f(gl.getUniformLocation(advectProg, "u_dt"), dt);
+      gl.uniform1f(gl.getUniformLocation(advectProg, "u_dissipation"), dissipation);
+      blit(target.write());
+      target.swap();
+    };
+
+    const damp = (factor: number) => {
+      gl.useProgram(dampProg);
+      bindQuad(dampProg);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, velocity.read().tex);
+      gl.uniform1i(gl.getUniformLocation(dampProg, "u_velocity"), 0);
+      gl.uniform1f(gl.getUniformLocation(dampProg, "u_damp"), factor);
+      blit(velocity.write());
+      velocity.swap();
+    };
 
     const start = performance.now();
+    let last = start;
     let raf = 0;
-    const render = () => {
-      const t = (performance.now() - start) / 1000;
-      glc.uniform2f(uRes, canvas.width, canvas.height);
-      glc.uniform1f(uTime, t);
-      glc.drawArrays(glc.TRIANGLES, 0, 6);
-      raf = requestAnimationFrame(render);
+
+    const loop = () => {
+      const now = performance.now();
+      const dt = Math.min(0.016, (now - last) / 1000);
+      last = now;
+      const elapsed = (now - start) / 1000;
+
+      // Background phase: very slow oscillation
+      const phase = elapsed * 0.25;
+      // currentBlend: 0 = orange, 1 = blue (matches DISPLAY shader)
+      const currentBlend = 0.5 + 0.5 * Math.sin(phase);
+
+      // Inject from pointer if moved
+      if (pointer.moved) {
+        // Opposite color
+        // orange dye: warm; blue dye: cool. We add tint that pushes color toward opposite of base.
+        const orangeTint: [number, number, number] = [0.6, 0.25, -0.2];
+        const blueTint:   [number, number, number] = [-0.25, -0.1, 0.7];
+        // when bg is orange (currentBlend low) → inject blue; when blue → inject orange
+        const mixT = currentBlend; // 0 orange bg → use blue tint; 1 blue bg → use orange tint
+        const cr = blueTint[0] * (1 - mixT) + orangeTint[0] * mixT;
+        const cg = blueTint[1] * (1 - mixT) + orangeTint[1] * mixT;
+        const cb = blueTint[2] * (1 - mixT) + orangeTint[2] * mixT;
+
+        const speed = Math.hypot(pointer.dx, pointer.dy);
+        const intensity = Math.min(1.5, 0.4 + speed * 30);
+        splat(dye, pointer.x, pointer.y, cr * intensity, cg * intensity, cb * intensity, 0.0008);
+
+        // Push velocity in the direction of motion (and a little ahead — "pushing water")
+        const vScale = 1200;
+        splat(
+          velocity,
+          pointer.x, pointer.y,
+          pointer.dx * vScale, pointer.dy * vScale, 0,
+          0.0006,
+        );
+
+        pointer.moved = false;
+        pointer.dx *= 0.6;
+        pointer.dy *= 0.6;
+      }
+
+      // Advect velocity by itself (self-advection) — gives the "pushing water ahead" feel
+      advect(velocity, dt * 60, 0.995);
+      // Slight global damping
+      damp(0.995);
+      // Advect dye by velocity
+      advect(dye, dt * 60, 0.992);
+
+      // Render to screen
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, dW, dH);
+      gl.useProgram(displayProg);
+      bindQuad(displayProg);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, dye.read().tex);
+      gl.uniform1i(gl.getUniformLocation(displayProg, "u_dye"), 0);
+      gl.uniform1f(gl.getUniformLocation(displayProg, "u_phase"), phase);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+      raf = requestAnimationFrame(loop);
     };
-    render();
+    loop();
 
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("pointermove", onMove);
     };
   }, []);
 
