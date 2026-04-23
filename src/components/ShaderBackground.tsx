@@ -281,27 +281,29 @@ export function ShaderBackground() {
 
       // Inject from pointer if moved
       if (pointer.moved) {
-        // Opposite color
-        // orange dye: warm; blue dye: cool. We add tint that pushes color toward opposite of base.
-        const orangeTint: [number, number, number] = [0.6, 0.25, -0.2];
-        const blueTint:   [number, number, number] = [-0.25, -0.1, 0.7];
-        // when bg is orange (currentBlend low) → inject blue; when blue → inject orange
-        const mixT = currentBlend; // 0 orange bg → use blue tint; 1 blue bg → use orange tint
+        const orangeTint: [number, number, number] = [0.9, 0.38, -0.25];
+        const blueTint:   [number, number, number] = [-0.3, -0.12, 1.0];
+        const mixT = currentBlend;
         const cr = blueTint[0] * (1 - mixT) + orangeTint[0] * mixT;
         const cg = blueTint[1] * (1 - mixT) + orangeTint[1] * mixT;
         const cb = blueTint[2] * (1 - mixT) + orangeTint[2] * mixT;
 
         const speed = Math.hypot(pointer.dx, pointer.dy);
-        const intensity = Math.min(1.5, 0.4 + speed * 30);
-        splat(dye, pointer.x, pointer.y, cr * intensity, cg * intensity, cb * intensity, 0.0008);
+        // Bigger, juicier splat right at the cursor — radius scales with speed too
+        const intensity = Math.min(2.4, 0.7 + speed * 45);
+        const dyeRadius = 0.0035 + Math.min(0.004, speed * 0.5);
+        splat(dye, pointer.x, pointer.y, cr * intensity, cg * intensity, cb * intensity, dyeRadius);
 
-        // Push velocity in the direction of motion (and a little ahead — "pushing water")
-        const vScale = 1200;
+        // Push the water ahead of the cursor — splat velocity slightly in front of motion
+        const vScale = 2200;
+        const ahead = 0.6; // place the velocity splat a bit ahead of the cursor
+        const aheadX = pointer.x + pointer.dx * ahead;
+        const aheadY = pointer.y + pointer.dy * ahead;
         splat(
           velocity,
-          pointer.x, pointer.y,
+          aheadX, aheadY,
           pointer.dx * vScale, pointer.dy * vScale, 0,
-          0.0006,
+          0.0025,
         );
 
         pointer.moved = false;
