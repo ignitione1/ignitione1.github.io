@@ -1,11 +1,14 @@
 import { Shader, ChromaFlow, Swirl } from "shaders/react";
 
 /**
- * Background shader — exact configuration from the reference site.
+ * Background shader — configuration from the reference site.
  */
 export function ShaderBackground() {
   return (
-    <Shader className="h-full w-full">
+    <Shader
+      className="h-full w-full"
+      style={{ width: "100%", height: "100%", display: "block" }}
+    >
       <Swirl
         colorA="#1275d8"
         colorB="#e19136"
