@@ -63,8 +63,8 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --background: oklch(0.08 0 0);
+  --foreground: oklch(0.98 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
@@ -137,8 +137,53 @@
     border-color: var(--color-border);
   }
 
-  body {
-    background-color: var(--color-background);
+  html, body {
+    background-color: #000;
     color: var(--color-foreground);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    cursor: none;
+  }
+
+  body {
+    overflow: hidden;
+  }
+
+  .font-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
 }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.anim-fade-up { animation: fadeInUp 0.9s ease-out both; }
+.anim-fade { animation: fadeIn 1s ease-out both; }
+
+.shader-bg {
+  background:
+    radial-gradient(at 20% 30%, oklch(0.25 0.08 280 / 0.6) 0px, transparent 50%),
+    radial-gradient(at 80% 20%, oklch(0.22 0.10 220 / 0.5) 0px, transparent 50%),
+    radial-gradient(at 60% 80%, oklch(0.25 0.09 320 / 0.45) 0px, transparent 50%),
+    radial-gradient(at 30% 90%, oklch(0.20 0.08 200 / 0.5) 0px, transparent 50%),
+    #000;
+  background-size: 200% 200%;
+  animation: shaderShift 18s ease-in-out infinite;
+}
+@keyframes shaderShift {
+  0%, 100% { background-position: 0% 0%, 100% 0%, 50% 100%, 0% 100%; }
+  50% { background-position: 30% 20%, 70% 30%, 60% 70%, 20% 80%; }
+}
+
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+.scroll-container::-webkit-scrollbar { display: none; }
+.scroll-container { scrollbar-width: none; }
+
