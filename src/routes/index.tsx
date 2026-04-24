@@ -5,8 +5,8 @@ export const Route = createFileRoute("/")({
   component: StudioLanding,
   head: () => ({
     meta: [
-      { title: "Студия разработки — продукты, которые работают" },
-      { name: "description", content: "Создаём сайты, веб-приложения и сервисы под ключ — от идеи до запуска." },
+      { title: "Revyakin.tech — Веб-разработка и мобильные приложения" },
+      { name: "description", content: "Разрабатываю сайты, мобильные приложения и сервисы под ключ. React, Flutter, Next.js, Python. Прокопьевск, Россия." },
     ],
   }),
 });

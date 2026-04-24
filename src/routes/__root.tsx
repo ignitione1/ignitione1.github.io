@@ -29,19 +29,24 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Revyakin.tech — Веб-разработка и мобильные приложения" },
+      { name: "description", content: "Разрабатываю сайты, мобильные приложения и сервисы под ключ. React, Flutter, Next.js, Python. Прокопьевск, Россия." },
+      { name: "description", content: "I build websites, mobile apps, and services from scratch. React, Flutter, Next.js, Python. Prokopyevsk, Russia.", lang: "en" },
+      { property: "og:title", content: "Revyakin.tech — Веб-разработка и мобильные приложения" },
+      { property: "og:description", content: "Разрабатываю сайты, мобильные приложения и сервисы под ключ. React, Flutter, Next.js, Python. Прокопьевск, Россия." },
+      { property: "og:title", content: "Revyakin.tech — Web Development and Mobile Apps", lang: "en" },
+      { property: "og:description", content: "I build websites, mobile apps, and services from scratch. React, Flutter, Next.js, Python. Prokopyevsk, Russia.", lang: "en" },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        href: "/images/logo.png",
       },
     ],
   }),
@@ -52,7 +57,7 @@ export const Route = createRootRoute({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="ru">
       <head>
         <HeadContent />
       </head>
