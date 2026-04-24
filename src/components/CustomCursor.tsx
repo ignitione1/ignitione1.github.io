@@ -8,6 +8,10 @@ export function CustomCursor() {
   const isPointerRef = useRef(false)
 
   useEffect(() => {
+    // Проверяем, является ли устройство touch-устройством
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+    if (isTouchDevice) return
+
     let animationFrameId: number
 
     const lerp = (start: number, end: number, factor: number) =>
@@ -22,8 +26,8 @@ export function CustomCursor() {
         const scale = isPointerRef.current ? 1.5 : 1       // внешний — увеличивается на кнопках
         const innerScale = isPointerRef.current ? 0.5 : 1  // внутренний — уменьшается
 
-        outerRef.current.style.transform = `translate3d(${positionRef.current.x}px, ${positionRef.current.y}px, 0) translate(-50%, -50%) scale(${scale})` 
-        innerRef.current.style.transform = `translate3d(${positionRef.current.x}px, ${positionRef.current.y}px, 0) translate(-50%, -50%) scale(${innerScale})` 
+        outerRef.current.style.transform = `translate3d(${positionRef.current.x}px, ${positionRef.current.y}px, 0) translate(-50%, -50%) scale(${scale})`
+        innerRef.current.style.transform = `translate3d(${positionRef.current.x}px, ${positionRef.current.y}px, 0) translate(-50%, -50%) scale(${innerScale})`
       }
       animationFrameId = requestAnimationFrame(updateCursor)
     }
@@ -48,12 +52,12 @@ export function CustomCursor() {
   return (
     <>
       {/* внешнее кольцо */}
-      <div ref={outerRef} className="pointer-events-none fixed left-0 top-0 z-50 mix-blend-difference will-change-transform"
+      <div ref={outerRef} className="pointer-events-none fixed left-0 top-0 z-50 hidden mix-blend-difference will-change-transform md:block"
         style={{ contain: "layout style paint" }}>
         <div className="h-4 w-4 rounded-full border-2 border-white" />
       </div>
       {/* внутренняя точка */}
-      <div ref={innerRef} className="pointer-events-none fixed left-0 top-0 z-50 mix-blend-difference will-change-transform"
+      <div ref={innerRef} className="pointer-events-none fixed left-0 top-0 z-50 hidden mix-blend-difference will-change-transform md:block"
         style={{ contain: "layout style paint" }}>
         <div className="h-2 w-2 rounded-full bg-white" />
       </div>
