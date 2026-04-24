@@ -1,5 +1,12 @@
 export const translations = {
   ru: {
+    seo: {
+      title: "Revyakin.tech — Веб-разработка и мобильные приложения",
+      description: "Разрабатываю сайты, мобильные приложения и сервисы под ключ. React, Flutter, Next.js, Python. Прокопьевск, Россия.",
+      keywords: "веб-разработка, мобильные приложения, React, Flutter, Python, создание сайтов, разработка ПО, Прокопьевск",
+      ogTitle: "Revyakin.tech — Веб-разработка и мобильные приложения",
+      ogDescription: "Разрабатываю сайты, мобильные приложения и сервисы под ключ. От идеи до запуска.",
+    },
     nav: {
       home: "Главная",
       work: "Работы",
@@ -118,6 +125,13 @@ export const translations = {
     },
   },
   en: {
+    seo: {
+      title: "Revyakin.tech — Web Development & Mobile Apps",
+      description: "I build websites, mobile apps, and services from scratch. React, Flutter, Next.js, Python. Prokopyevsk, Russia.",
+      keywords: "web development, mobile apps, React, Flutter, Python, website creation, software development, Prokopyevsk",
+      ogTitle: "Revyakin.tech — Web Development & Mobile Apps",
+      ogDescription: "I build websites, mobile apps, and services from scratch. From idea to launch.",
+    },
     nav: {
       home: "Home",
       work: "Work",

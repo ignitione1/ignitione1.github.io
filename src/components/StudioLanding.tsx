@@ -9,12 +9,16 @@ import { MagneticButton } from "@/components/magnetic-button"
 import { useRef, useEffect, useState } from "react"
 import { translations, type Lang } from "@/lib/translations"
 
-export function StudioLanding() {
+interface StudioLandingProps {
+  lang: Lang
+  onLangChange: (lang: Lang) => void
+}
+
+export function StudioLanding({ lang, onLangChange }: StudioLandingProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [currentSection, setCurrentSection] = useState(0)
   const [isLoaded, setIsLoaded] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [lang, setLang] = useState<Lang>('ru')
   const t = translations[lang]
   const touchStartY = useRef<number | undefined>(undefined)
   const touchStartX = useRef<number | undefined>(undefined)
@@ -187,7 +191,7 @@ export function StudioLanding() {
           ))}
         </div>
         <button
-          onClick={() => setLang(lang === 'ru' ? 'en' : 'ru')}
+          onClick={() => onLangChange(lang === 'ru' ? 'en' : 'ru')}
           className="flex items-center gap-2 rounded-full border border-foreground/20 bg-foreground/10 px-2.5 py-1 backdrop-blur-md transition-all hover:border-foreground/40 hover:bg-foreground/15 md:px-3 md:py-1.5"
         >
           <span className={`font-mono text-[10px] font-medium transition-colors md:text-xs ${lang === 'ru' ? 'text-foreground' : 'text-foreground/50'}`}>RU</span>
@@ -200,7 +204,7 @@ export function StudioLanding() {
       <div ref={scrollContainerRef} className="relative z-10 flex h-screen overflow-x-auto overflow-y-hidden scroll-container" style={{ scrollbarWidth: "none" }}>
 
         {/* Hero */}
-        <section className="flex min-h-screen w-screen shrink-0 flex-col justify-end px-4 pb-8 pt-6 md:px-12 md:pb-24 md:pt-24">
+        <section className="flex min-h-screen w-screen shrink-0 flex-col justify-center px-4 pb-8 pt-12 md:justify-end md:px-12 md:pb-24 md:pt-24">
           <div className="max-w-3xl">
             <div className="mb-3 inline-block rounded-full border border-foreground/20 bg-foreground/15 px-3 py-1 backdrop-blur-md md:mb-4 md:px-4 md:py-1.5">
               <p className="font-mono text-[10px] text-foreground/90 md:text-xs">{t.hero.badge}</p>
@@ -227,11 +231,11 @@ export function StudioLanding() {
 
           {/* Swipe indicator for mobile/tablet */}
           {isLoaded && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-0 animate-fade-in lg:hidden" style={{ animationDelay: '800ms', animationFillMode: 'forwards' }}>
-              <span className="font-mono text-xs text-foreground/40 md:text-sm md:text-foreground/50">
+            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-0 animate-fade-in lg:hidden" style={{ animationDelay: '800ms', animationFillMode: 'forwards' }}>
+              <span className="font-mono text-sm text-foreground/60 md:text-sm md:text-foreground/50">
                 {lang === 'ru' ? 'Свайп' : 'Swipe'}
               </span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-foreground/40 md:h-6 md:w-6 md:text-foreground/50 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-foreground/60 md:h-6 md:w-6 md:text-foreground/50 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </div>
