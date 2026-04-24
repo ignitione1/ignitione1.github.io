@@ -1,0 +1,22 @@
+:root {
+  --background: 0 0% 7%;      /* почти чёрный */
+  --foreground: 0 0% 96%;     /* почти белый */
+  --primary: 217 91% 60%;     /* синий */
+  --accent: 35 82% 55%;       /* оранжевый */
+  --radius: 0.75rem;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
