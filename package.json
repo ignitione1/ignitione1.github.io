@@ -12,16 +12,13 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "@lovable.dev/vite-tanstack-config": "^1.4.0",
     "@tailwindcss/vite": "^4.2.1",
-    "@tanstack/react-router": "^1.168.0",
-    "@tanstack/react-start": "^1.167.14",
-    "@tanstack/router-plugin": "^1.167.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.462.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-router-dom": "^6.26.0",
     "shaders": "^2.1.1",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.1",
