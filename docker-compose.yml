@@ -6,12 +6,7 @@ services:
     container_name: portfolio
     restart: unless-stopped
     ports:
-      - "3000:3000"
-    env_file:
-      - .env
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
+      - "8080:80"
     networks:
       - portfolio-network
 

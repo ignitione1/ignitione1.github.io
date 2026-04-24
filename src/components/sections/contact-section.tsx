@@ -112,7 +112,7 @@ ${formData.message}
   }
 
   return (
-    <section className="flex h-screen w-screen shrink-0 items-center px-4 pt-6 md:px-12 md:pt-0 lg:px-16">
+    <section className="flex h-screen w-screen shrink-0 items-center px-4 pt-12 md:px-12 md:pt-0 lg:px-16">
       <div className="mx-auto w-full max-w-7xl">
         <div className="grid gap-4 md:grid-cols-[1.2fr_1fr] md:gap-12 lg:gap-20">
           <div className="flex flex-col justify-center">
@@ -126,7 +126,7 @@ ${formData.message}
               <Reveal from="left" delay={200}>
                 <a href="mailto:hello@studio.dev" className="group block">
                   <div className="mb-1 flex items-center gap-2">
-                    <Mail size={10} className="text-foreground/60 md:size-12" />
+                    <Mail size={10} className="text-foreground/60 md:size-4" />
                     <span className="font-mono text-[10px] text-foreground/60 md:text-xs">{t.contact.email}</span>
                   </div>
                   <p className="text-xs text-foreground transition-colors group-hover:text-foreground/70 md:text-sm md:text-xl">ignitione1@mail.ru</p>
@@ -134,7 +134,7 @@ ${formData.message}
               </Reveal>
               <Reveal from="up" delay={350}>
                 <div className="mb-1 flex items-center gap-2">
-                  <MapPin size={10} className="text-foreground/60 md:size-12" />
+                  <MapPin size={10} className="text-foreground/60 md:size-4" />
                   <span className="font-mono text-[10px] text-foreground/60 md:text-xs">{t.contact.location}</span>
                 </div>
                 <p className="text-xs text-foreground md:text-sm md:text-xl">{t.contact.locationValue}</p>
@@ -160,14 +160,14 @@ ${formData.message}
               </Reveal>
             </div>
           </div>
-          <div className="flex flex-col justify-center">
-            <form className="space-y-2 md:space-y-5" onSubmit={handleSubmit}>
+          <div className="flex flex-col pt-0 md:pt-12">
+            <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
               {[
                 { label: t.contact.form.name, type: "text", placeholder: t.contact.form.namePlaceholder, delay: 200, key: 'name' },
                 { label: t.contact.form.contact, type: "text", placeholder: t.contact.form.contactPlaceholder, delay: 350, key: 'contact' },
               ].map((f) => (
                 <Reveal key={f.label} from="right" delay={f.delay}>
-                  <label className="mb-1 block font-mono text-[9px] text-foreground/60 md:mb-2 md:text-[10px]">{f.label}</label>
+                  <label className="mb-1 block font-mono text-xs text-foreground/60 md:mb-2 md:text-sm">{f.label}</label>
                   <input
                     type={f.type}
                     required
@@ -180,9 +180,9 @@ ${formData.message}
                 </Reveal>
               ))}
               <Reveal from="right" delay={500}>
-                <label className="mb-1 block font-mono text-[9px] text-foreground/60 md:mb-2 md:text-[10px]">{t.contact.form.message}</label>
+                <label className="mb-1 block font-mono text-xs text-foreground/60 md:mb-2 md:text-sm">{t.contact.form.message}</label>
                 <textarea
-                  rows={2}
+                  rows={4}
                   required
                   placeholder={t.contact.form.messagePlaceholder}
                   value={formData.message}

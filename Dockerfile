@@ -6,19 +6,13 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
-RUN NODE_OPTIONS="--max-old-space-size=2048" npm run build
+RUN npm run build
 
-FROM node:22-alpine AS runner
+FROM nginx:alpine
 
-WORKDIR /app
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-ENV NODE_ENV production
+EXPOSE 80
 
-COPY --from=builder /app/package*.json ./
-RUN npm ci --omit=dev
-
-COPY --from=builder /app/dist ./dist
-
-EXPOSE 3000
-
-CMD ["node", "dist/server/server.js"]
+CMD ["nginx", "-g", "daemon off;"]

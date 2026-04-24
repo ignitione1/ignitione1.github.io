@@ -21,8 +21,6 @@ jobs:
           script: |
             cd /root/portfolio
             git pull origin main
-            echo "VITE_TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}" > .env
-            echo "VITE_TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}" >> .env
             docker compose down
             docker compose build
             docker compose up -d
