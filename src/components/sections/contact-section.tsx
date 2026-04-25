@@ -224,6 +224,13 @@ ${formData.message}
             </form>
           </div>
         </div>
+        
+        {/* Footer with SEO link */}
+        <footer className="mt-8 md:mt-12">
+          <p className="font-mono text-[10px] text-foreground/40 md:text-xs">
+            © 2026 Revyakin.tech. <a href="/services" className="hover:text-foreground/60">{lang === 'ru' ? 'Услуги' : 'Services'}</a>
+          </p>
+        </footer>
       </div>
     </section>
   )
