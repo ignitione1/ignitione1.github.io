@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Портфолио переехало</title>
+<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" />
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+:root {
+  --bg: #0a0a0f;
+  --text: #e0e0e0;
+  --accent: #7b5cf9;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.container {
+  text-align: center;
+  padding: 20px;
+  max-width: 800px;
+}
+
+h1 {
+  font-size: 3em;
+  background: linear-gradient(90deg, #9b79ff, #00d4ff, #ff79c6, #00ffd4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+  animation: gradientMove 6s ease infinite;
+  background-size: 300% 300%;
+}
+
+p {
+  color: #bbb;
+  font-size: 1.2em;
+  margin-bottom: 30px;
+}
+
+a {
+  display: inline-block;
+  padding: 15px 40px;
+  background: linear-gradient(90deg, #9b79ff, #00d4ff);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1.1em;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(123,92,249,0.4);
+}
+
+a:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(123,92,249,0.6);
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Портфолио переехало</h1>
+  <p>Мое портфолио теперь доступно по новому адресу с обновленным дизайном и проектами</p>
+  <a href="https://revyakin.tech">Перейти на новый сайт</a>
+</div>
+
+</body>
+</html>
