@@ -1,5 +1,5 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "revyakin-portfolio",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -8,8 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write .",
-    "deploy": "gh-pages -d dist"
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
