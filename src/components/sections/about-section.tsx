@@ -69,11 +69,11 @@ export function AboutSection({ scrollToSection, lang }: AboutSectionProps) {
               <h2 className="mb-2 text-xl font-light leading-[1.1] tracking-tight text-foreground md:mb-3 md:text-5xl lg:text-6xl">
                 {lang === 'ru' ? (
                   <>
-                    Пишу код.<br />Решаю<br />бизнес-задачи
+                    Код, который<br />решает задачи<br />бизнеса
                   </>
                 ) : (
                   <>
-                    I write code.<br />I solve<br />business problems
+                    Code that<br />solves business<br />problems
                   </>
                 )}
               </h2>

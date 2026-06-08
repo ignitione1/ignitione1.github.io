@@ -54,6 +54,7 @@ interface ContactSectionProps {
 
 export function ContactSection({ lang }: ContactSectionProps) {
   const [formData, setFormData] = useState({ name: '', contact: '', message: '' })
+  const [website, setWebsite] = useState('') // honeypot: настоящие люди его не видят
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const t = translations[lang]
@@ -63,38 +64,21 @@ export function ContactSection({ lang }: ContactSectionProps) {
     setIsSubmitting(true)
     setSubmitStatus('idle')
 
-    const botToken = import.meta.env.VITE_TELEGRAM_BOT_TOKEN
-    const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID
+    const apiUrl = import.meta.env.VITE_CONTACT_API_URL
 
-    if (!botToken || !chatId) {
-      console.error('Telegram bot token or chat ID not configured')
+    if (!apiUrl) {
+      console.error('VITE_CONTACT_API_URL is not configured')
       setSubmitStatus('error')
       setIsSubmitting(false)
       return
     }
 
-    const message = `
-📨 Новая заявка с сайта!
-
-👤 Имя: ${formData.name}
-📱 Контакты: ${formData.contact}
-💬 Сообщение:
-${formData.message}
-    `.trim()
-
     try {
-      const response = await fetch(
-        `https://api.telegram.org/bot${botToken}/sendMessage`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: chatId,
-            text: message,
-            parse_mode: 'HTML',
-          }),
-        }
-      )
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, website }),
+      })
 
       if (response.ok) {
         setSubmitStatus('success')
@@ -112,7 +96,7 @@ ${formData.message}
   }
 
   return (
-    <section className="flex h-screen w-screen shrink-0 items-center px-4 pt-12 md:px-12 md:pt-0 lg:px-16">
+    <section className="flex h-screen w-screen shrink-0 items-start px-4 pt-16 md:items-center md:px-12 md:pt-0 lg:px-16">
       <div className="mx-auto w-full max-w-7xl">
         <div className="grid gap-4 md:grid-cols-[1.2fr_1fr] md:gap-12 lg:gap-20">
           <div className="flex flex-col justify-center">
@@ -161,7 +145,18 @@ ${formData.message}
             </div>
           </div>
           <div className="flex flex-col pt-0 md:pt-12">
-            <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
+            <form className="space-y-3 md:space-y-6" onSubmit={handleSubmit}>
+              {/* honeypot — скрыто от людей, видно ботам */}
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                aria-hidden="true"
+                className="absolute -left-[9999px] h-0 w-0 opacity-0"
+              />
               {[
                 { label: t.contact.form.name, type: "text", placeholder: t.contact.form.namePlaceholder, delay: 200, key: 'name' },
                 { label: t.contact.form.contact, type: "text", placeholder: t.contact.form.contactPlaceholder, delay: 350, key: 'contact' },
@@ -182,7 +177,7 @@ ${formData.message}
               <Reveal from="right" delay={500}>
                 <label className="mb-1 block font-mono text-xs text-foreground/60 md:mb-2 md:text-sm">{t.contact.form.message}</label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   required
                   placeholder={t.contact.form.messagePlaceholder}
                   value={formData.message}
@@ -226,7 +221,7 @@ ${formData.message}
         </div>
         
         {/* Footer with SEO link */}
-        <footer className="mt-8 md:mt-12">
+        <footer className="hidden md:mt-12 md:block">
           <p className="font-mono text-[10px] text-foreground/40 md:text-xs">
             © 2026 Revyakin.tech. <a href="/services" className="hover:text-foreground/60">{lang === 'ru' ? 'Услуги' : 'Services'}</a>
           </p>

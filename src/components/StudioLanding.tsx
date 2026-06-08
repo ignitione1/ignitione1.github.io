@@ -212,11 +212,11 @@ export function StudioLanding({ lang, onLangChange }: StudioLandingProps) {
             <h1 className="mb-3 font-sans text-3xl font-light leading-[1.1] tracking-tight text-foreground md:mb-4 md:text-5xl lg:text-7xl">
               {lang === 'ru' ? (
                 <>
-                  Разрабатываю<br />продукты,<br />которые работают
+                  Сайты и приложения,<br />которые работают<br />на ваш бизнес
                 </>
               ) : (
                 <>
-                  I build<br />products<br />that work
+                  Apps &amp; sites<br />that work<br />for your business
                 </>
               )}
             </h1>
