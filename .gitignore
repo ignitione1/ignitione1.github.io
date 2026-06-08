@@ -25,6 +25,9 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# Project notes for Claude Code (содержит инфра-детали — не в публичный репо)
+CLAUDE.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
