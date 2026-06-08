@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { translations, type Lang } from "@/lib/translations";
 
 interface ServicesPageProps {
@@ -6,6 +7,30 @@ interface ServicesPageProps {
 
 export function ServicesPage({ lang }: ServicesPageProps) {
   const t = translations[lang];
+
+  // Свой title/description для /services (SPA — иначе наследуются с главной).
+  // Восстанавливаем при уходе со страницы.
+  useEffect(() => {
+    const prevTitle = document.title;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    const prevDesc = metaDesc?.getAttribute("content") ?? "";
+
+    document.title =
+      lang === "ru"
+        ? "Услуги веб-разработки и мобильных приложений — Revyakin.tech"
+        : "Web Development & Mobile App Services — Revyakin.tech";
+    metaDesc?.setAttribute(
+      "content",
+      lang === "ru"
+        ? "Разработка сайтов, лендингов, веб- и мобильных приложений под ключ. React, Next.js, Python, Flutter. От идеи до продакшена."
+        : "Website, landing page, web and mobile app development from scratch. React, Next.js, Python, Flutter. From idea to production."
+    );
+
+    return () => {
+      document.title = prevTitle;
+      if (metaDesc) metaDesc.setAttribute("content", prevDesc);
+    };
+  }, [lang]);
 
   return (
     <div className="bg-background text-foreground px-4 py-12 md:px-8 lg:px-16 h-screen overflow-y-auto">
