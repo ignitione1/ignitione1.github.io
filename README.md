@@ -19,12 +19,12 @@
 - **TypeScript ESLint** — линтинг TypeScript
 
 ### Деплой
-- **Docker** — контейнеризация
-- **GitHub Pages** — хостинг статического сайта
-- **Nginx** — веб-сервер для продакшена
+- **GitHub Actions** — сборка и деплой на VPS по кнопке (`workflow_dispatch`)
+- **Nginx** — раздача статики на VPS (без Docker)
+- **Let's Encrypt** — SSL-сертификаты
 
 ### Интеграции
-- **Telegram Bot API** — отправка заявок из контактной формы в Telegram
+- **Telegram Bot API** — заявки из контактной формы через serverless-релей на Vercel (токен скрыт в env, в браузер не попадает)
 
 ## 📁 Структура проекта
 
@@ -49,11 +49,9 @@ portfolio/
 ├── index.html              # HTML-шаблон с SEO мета-тегами
 ├── vite.config.ts          # Конфигурация Vite
 ├── tsconfig.json           # Конфигурация TypeScript
-├── Dockerfile              # Docker-образ
-├── Dockerfile.vps          # Docker-образ для VPS
-├── docker-compose.yml      # Docker Compose
-├── nginx.conf              # Nginx конфиг
-└── vps-nginx.conf          # Nginx конфиг для VPS
+├── vps-nginx.conf          # Nginx конфиг для VPS (раздача dist/ + SSL)
+└── .github/workflows/
+    └── deploy.yml          # Сборка + деплой на VPS по кнопке
 ```
 
 ## 🛠️ Установка и запуск
@@ -89,30 +87,43 @@ npm run build
 
 ## 🚢 Деплой
 
-### GitHub Pages
+Деплой на VPS через **GitHub Actions** — вручную, кнопкой (без Docker).
 
-```bash
-npm run deploy
+### Как это работает
+
+```
+git push → (вручную) Actions → Deploy to VPS → «Run workflow»
+         → сборка dist/ на раннере GitHub
+         → rsync dist/ на VPS (--delete, чистая перезаливка)
+         → Nginx раздаёт /var/www/revyakin
 ```
 
-### Docker
-
-**Сборка образа**
-```bash
-docker build -t portfolio .
-```
-
-**Запуск через Docker Compose**
-```bash
-docker-compose up
-```
-
-### VPS (с Docker)
+### Первоначальная настройка VPS (один раз)
 
 ```bash
-docker build -f Dockerfile.vps -t portfolio-vps .
-docker run -p 80:80 portfolio-vps
+sudo apt update && sudo apt install -y nginx
+sudo mkdir -p /var/www/revyakin
+# SSL (если ещё нет):
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d revyakin.tech -d www.revyakin.tech
+# Конфиг Nginx:
+sudo cp vps-nginx.conf /etc/nginx/sites-available/revyakin.tech
+sudo ln -s /etc/nginx/sites-available/revyakin.tech /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
 ```
+
+### Секреты GitHub (Settings → Secrets and variables → Actions)
+
+| Секрет | Значение |
+|--------|----------|
+| `VPS_HOST` | IP сервера |
+| `VPS_USER` | SSH-пользователь |
+| `VPS_SSH_KEY` | приватный SSH-ключ для деплоя |
+| `VPS_PATH` | путь раздачи, напр. `/var/www/revyakin` |
+
+### Запуск деплоя
+
+GitHub → вкладка **Actions** → workflow **Deploy to VPS** → **Run workflow**.
 
 ## 🌐 Особенности
 
@@ -125,25 +136,32 @@ docker run -p 80:80 portfolio-vps
 
 ## 📝 Переменные окружения
 
-Создайте файл `.env` на основе `.env.example`:
+Фронтенд знает только **адрес эндпоинта** контактной формы — это не секрет.
+Создайте `.env` на основе `.env.example`:
 
 ```env
-# Telegram Bot Configuration
-# Получите токен у @BotFather в Telegram
-VITE_TELEGRAM_BOT_TOKEN=your_bot_token_here
-
-# Ваш chat_id (получите через @userinfobot или API)
-VITE_TELEGRAM_CHAT_ID=your_chat_id_here
+# URL serverless-функции контактной формы (Vercel)
+VITE_CONTACT_API_URL=https://revyakin-contact-api.vercel.app/api/contact
 ```
 
-### Настройка Telegram Bot
+Для прод-сборки этот URL уже зашит в `.env.production` (его подхватывает GitHub Actions).
 
-1. **Создайте бота** через [@BotFather](https://t.me/BotFather) в Telegram
-2. **Получите токен** бота и добавьте его в `VITE_TELEGRAM_BOT_TOKEN`
-3. **Получите ваш chat_id** через [@userinfobot](https://t.me/userinfobot) или API
-4. **Добавьте chat_id** в `VITE_TELEGRAM_CHAT_ID`
+### Контактная форма (Telegram через Vercel)
 
-Форма заявок на сайте будет отправлять сообщения напрямую в ваш Telegram.
+⚠️ **Токен бота в браузер не кладётся.** Раньше он шёл через `VITE_`-переменную и
+попадал в публичный бандл — это утечка. Теперь форма работает через serverless-релей:
+
+```
+браузер → POST на VITE_CONTACT_API_URL → Vercel-функция (токен в env) → Telegram
+```
+
+Код функции — в отдельном репозитории `revyakin-contact-api`. Настройка:
+
+1. **Создайте бота** через [@BotFather](https://t.me/BotFather), получите токен.
+2. **Узнайте chat_id** через [@userinfobot](https://t.me/userinfobot).
+3. Задеплойте `revyakin-contact-api` на Vercel, в **Environment Variables** добавьте
+   `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `ALLOWED_ORIGIN`.
+4. URL Vercel-проекта пропишите в `VITE_CONTACT_API_URL` (и в `.env.production`).
 
 ## 📄 Лицензия
 

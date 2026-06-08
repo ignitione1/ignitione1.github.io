@@ -1,7 +1,14 @@
 name: Deploy to VPS
 
+# Запуск только вручную — кнопкой в Actions (workflow_dispatch).
+# Сборка идёт здесь, на раннере GitHub (на VPS памяти мало), на сервер
+# заливается готовая dist/. GitHub Pages (old.html) это не трогает.
 on:
   workflow_dispatch:
+
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -10,16 +17,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd /root/portfolio
-            git pull origin main
-            docker compose down
-            docker compose build
-            docker compose up -d
-            docker system prune -f
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy dist/ to VPS
+        run: |
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key" \
+            dist/ "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_PATH }}/"
